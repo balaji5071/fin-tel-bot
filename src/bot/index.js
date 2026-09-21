@@ -17,38 +17,49 @@ const httpsAgent = new https.Agent({
   timeout: 30000,
 });
 
-export const initBot = () => {
-  bot = new Telegraf(config.BOT_TOKEN, {
-    telegram: {
-      agent: httpsAgent,
-    },
-  });
+export const getBot = () => {
+  if (!bot) {
+    bot = new Telegraf(config.BOT_TOKEN, {
+      telegram: {
+        agent: httpsAgent,
+        webhookReply: false, // Ensures all async replies, Groq AI calls, and DB transactions finish before Lambda response ends
+      },
+    });
 
-  // Set bot instance for notification dispatching
-  setBotInstanceForNotifications(bot);
+    // Set bot instance for notification dispatching
+    setBotInstanceForNotifications(bot);
 
-  // Global Middleware
-  bot.use(ensureUser);
+    // Global Middleware
+    bot.use(ensureUser);
 
-  // Error Handler
-  bot.catch(errorHandler);
+    // Error Handler
+    bot.catch(errorHandler);
 
-  // Register commands
-  registerCommands(bot);
+    // Register commands
+    registerCommands(bot);
+  }
 
   return bot;
 };
 
+export const initBot = () => getBot();
+
 export const launchBot = async (maxRetries = 5, retryDelayMs = 3000) => {
-  if (!bot) {
-    initBot();
-  }
+  const botInstance = getBot();
 
   logger.info('🚀 Starting Telegram Bot polling...');
 
+  // Automatically delete any lingering webhook before launching polling mode
+  try {
+    await botInstance.telegram.deleteWebhook({ drop_pending_updates: false });
+    logger.info('Cleared existing webhook for polling mode.');
+  } catch (err) {
+    logger.warn(`Could not clear webhook before polling: ${err.message}`);
+  }
+
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await bot.launch();
+      await botInstance.launch();
       logger.info('✅ Telegram Bot launched successfully');
       return;
     } catch (error) {

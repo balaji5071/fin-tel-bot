@@ -20,6 +20,10 @@ const envSchema = z.object({
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
   GROQ_API_KEY: z.string().min(1, 'GROQ_API_KEY is required for conversational AI bot'),
   GROQ_MODEL: z.string().default('openai/gpt-oss-120b'),
+  VERCEL_URL: z.string().optional(),
+  APP_URL: z.string().optional(),
+  TELEGRAM_WEBHOOK_SECRET: z.string().optional(),
+  CRON_SECRET: z.string().optional(),
 });
 
 const parseEnv = () => {
@@ -28,6 +32,9 @@ const parseEnv = () => {
   if (!result.success) {
     console.error('❌ Invalid environment variables:');
     console.error(JSON.stringify(result.error.format(), null, 2));
+    if (process.env.VERCEL || process.env.NODE_ENV === 'production') {
+      throw new Error(`Invalid environment variables: ${JSON.stringify(result.error.format())}`);
+    }
     process.exit(1);
   }
 

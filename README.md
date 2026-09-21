@@ -145,11 +145,28 @@ finance-bot/
 
 ## 🚀 Execution & Setup
 
+### Local Development (Polling Mode)
 ```bash
 # 1. Update database schema in MySQL
-npx prisma db push
+npm run db:push
 
-# 2. Launch the application
+# 2. Launch the bot in local polling mode
 npm run dev
 ```
-# fin-tel-bot
+
+---
+
+## ⚡ Deploy to Vercel (Serverless Mode)
+
+The application is 100% **Vercel Serverless Ready** with automatic Webhook routing, Vercel Crons, and an interactive status dashboard.
+
+1. **Deploy to Vercel**: Push to GitHub and import in the [Vercel Dashboard](https://vercel.com/new).
+2. **Add Environment Variables** in Vercel (`BOT_TOKEN`, `DATABASE_URL`, `GROQ_API_KEY`, `SUPER_ADMIN_IDS`, `APP_URL`).
+3. **Register Webhook**: Visit `https://your-app.vercel.app/api/set-webhook` or run:
+   ```bash
+   npm run webhook:set https://your-app.vercel.app
+   ```
+4. **Check Health**: Visit `https://your-app.vercel.app/` for the real-time status dashboard.
+
+📖 **For complete step-by-step instructions, see the [Vercel Deployment Guide](VERCEL_DEPLOYMENT.md).**
+

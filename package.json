@@ -7,11 +7,19 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
+    "build": "prisma generate",
+    "postinstall": "prisma generate",
+    "webhook:set": "node scripts/set-webhook.js set",
+    "webhook:info": "node scripts/set-webhook.js info",
+    "webhook:delete": "node scripts/set-webhook.js delete",
     "db:push": "prisma db push",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "keywords": [
     "telegram-bot",
